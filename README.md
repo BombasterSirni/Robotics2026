@@ -8,11 +8,11 @@
 - [Отчёт ROS Doctor](evidence/pr01/doctor.txt)
 - [Сводный отчёт для проверки](evidence/pr01/report.json)
 - [Использование ИИ](AI_USAGE.md)
-- [Workflow GitVerse](.github/workflows/pr01.yml)
+- [Workflow Github](.github/workflows/pr01.yml)
 
 ## Среда
 
-Ubuntu 24.04, ROS 2 Jazzy, Gazebo Jetty 10.4.0.
+Ubuntu 24.04, ROS 2 Jazzy, Gazebo Harmonic 10.4.0. Все ноды запущены нативно через консоль
 
 ## Исправный граф
 
@@ -42,53 +42,90 @@ POSE_TYPE=$(cat evidence/pr01/pose-type.txt)
 ros2 topic echo /turtle1/pose --once > evidence/pr01/pose-before.txt
 ```
 
-## До / Сбой / После
+Сначала измеряю частоту неподвижной черепахи. Таймер завершает замер сигналом
+SIGINT, аналогично `Ctrl+C`; ненулевой код `timeout` здесь означает окончание
+заданного интервала, а не отсутствие сообщений:
 
-### До (домен №25) - в терминале C:
+```bash
+TIMEFORMAT='elapsed_seconds=%R'
+{ time timeout --signal=INT 15s ros2 topic hz /turtle1/pose \
+  > evidence/pr01/pose-hz.txt 2>&1; } 2> evidence/pr01/pose-hz-duration.txt
+printf 'exit=%s\n' "$?" > evidence/pr01/pose-hz-exit.txt
+```
+
+После одного нажатия ↑ в B и остановки черепахи сохраняю новую позу в C:
+
+```bash
+ros2 topic echo /turtle1/pose --once > evidence/pr01/pose-after-key-working.txt
+```
+
+## Разрыв связи
+
+A продолжает работать в домене 25. В B останавливаю teleop через `Ctrl+C`
+и запускаю заново:
+
+```bash
+export ROS_DOMAIN_ID=23
+ros2 run turtlesim turtle_teleop_key
+```
+
+В C выполняю проверку в домене 23. Переменная `POSE_TYPE` осталась после
+исправного запуска и содержит `turtlesim_msgs/msg/Pose`:
+
+```bash
+export ROS_DOMAIN_ID=23
+ros2 node list --no-daemon --spin-time 2 > evidence/pr01/nodes-broken.txt
+timeout 5s ros2 topic echo /turtle1/pose "$POSE_TYPE" --once \
+  > evidence/pr01/pose-broken.txt 2>&1
+printf 'exit=%s\n' "$?" > evidence/pr01/pose-broken-exit.txt
+```
+
+Нажимаю ↑ в B. Для независимой проверки неподвижности один раз читаю позу
+из домена симулятора. Префикс действует только на эту команду, текущий домен
+C остаётся 23:
+
+```bash
+ROS_DOMAIN_ID=25 ros2 topic echo /turtle1/pose --once \
+  > evidence/pr01/pose-after-key-broken-control.txt
+```
+
+## Восстановление
+
+В B останавливаю teleop через `Ctrl+C` и возвращаю его в исходный домен:
 
 ```bash
 export ROS_DOMAIN_ID=25
-ros2 node list --no-daemon --spin-time 2
-printf 'exit=%s\n' "$?"
+ros2 run turtlesim turtle_teleop_key
 ```
 
-Вывод:
-/teleop_turtle
-/turtlesim
-exit=0
-
-То есть внутри одного домена мы видим обе ноды, и если запустить обе, то можно поуправлять turtlesim с помощью teleop
-
-### Сбой (№25 -> №23) - в терминале C:
-
-Turtlesim и teleop ноды теперь  в разных доменах (turtlesim в №25, а teleop в №23)
-```bash
-export ROS_DOMAIN_ID=25
-ros2 node list --no-daemon --spin-time 2
-printf 'exit=%s\n' "$?"
-```
-
-Вывод:
-/turtlesim
-exit=130
-
-### После (вернул teleop в №25 домен) - в терминале C:
+В C повторяю тот же тест доставки:
 
 ```bash
 export ROS_DOMAIN_ID=25
-ros2 node list --no-daemon --spin-time 2
-printf 'exit=%s\n' "$?"
+ros2 node list --no-daemon --spin-time 2 > evidence/pr01/nodes-fixed.txt
+timeout 5s ros2 topic echo /turtle1/pose "$POSE_TYPE" --once \
+  > evidence/pr01/pose-fixed.txt 2>&1
+printf 'exit=%s\n' "$?" > evidence/pr01/pose-fixed-exit.txt
 ```
 
-Вывод:
-/teleop_turtle
-/turtlesim
-exit=0
+Снова нажимаю ↑ в B, после остановки сохраняю результат в C:
+
+```bash
+ros2 topic echo /turtle1/pose --once > evidence/pr01/pose-after-key-fixed.txt
+```
 
 Значения, сравнение трёх состояний и причина сбоя находятся в
 [graph.md](evidence/pr01/graph.md). Скриншоты сняты с окна turtlesim;
 проверка доставки основана на выводе CLI и кодах завершения.
 
+## Как составлен environment.json
+
+В том же контейнере получены `/etc/os-release`, `uname -m`, `ROS_DISTRO`,
+`ROS_DOMAIN_ID`, `gz sim --versions` и фактический RMW:
+
+```bash
+python3 -c 'from rclpy.utilities import get_rmw_implementation_identifier; print(get_rmw_implementation_identifier())'
+```
 
 ## Проверка отчёта
 
@@ -115,4 +152,11 @@ python3 .course-kit/v1/tools/check_practice.py PR01 --submission .
 `evidence/pr01/` и `AI_USAGE.md`. Поле `report.commit` указывает на первый.
 После push во вкладке **CI/CD** должен завершиться run второго коммита.
 Ссылки на репозиторий, полный SHA этого коммита и успешный run составляют сдачу.
-Проверка на GitVerse выполняется после публикации;
+Проверка на GitVerse выполняется после публикации; локальный запуск тех же
+команд CI записан в `evidence/pr01/ci-local.txt`.
+
+После повторения опыта контейнер можно удалить с хоста:
+
+```bash
+docker rm -f pr01-student-demo
+```
