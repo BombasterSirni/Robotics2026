@@ -208,7 +208,6 @@ printf 'exit=%s\n' "$?"
 /turtlesim
 exit=130
 
-
 ### После (вернул teleop в №25 домен) - в терминале C:
 
 ```bash
