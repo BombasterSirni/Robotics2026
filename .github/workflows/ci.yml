@@ -7,8 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w01-57866a9c98fa.tar.gz
-      COURSE_KIT_SHA256: 57866a9c98fa3abdec27b35a180697ee680bfb0f05cc015970ce306d6d849fea
+      COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w02-5d210c431e32.tar.gz
+      COURSE_KIT_SHA256: 5d210c431e32418f45e2cffa9dd2028116c7a9520a36f3c7079c778cd73437a8
     steps:
       - name: Получить всю историю коммитов
         uses: actions/checkout@v4
@@ -36,7 +36,7 @@ jobs:
           if report['course_kit']['archive_sha256'] != os.environ['COURSE_KIT_SHA256']:
               raise SystemExit('SHA-256 комплекта в отчёте отличается от архива CI')
           PYTHON
-          
+
       - name: Проверить комплектность evidence и коммит реализации
         shell: bash
         run: python3 .course-kit/v1/tools/check_practice.py PR01 --submission .
