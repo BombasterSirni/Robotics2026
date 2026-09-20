@@ -1,6 +1,5 @@
 name: PR01 — проверка отчёта
 
-
 on: [push, pull_request]
 
 jobs:

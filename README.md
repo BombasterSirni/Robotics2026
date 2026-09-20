@@ -42,7 +42,6 @@ POSE_TYPE=$(cat evidence/pr01/pose-type.txt)
 ros2 topic echo /turtle1/pose --once > evidence/pr01/pose-before.txt
 ```
 
-
 ## До / Сбой / После
 
 ### До (домен №25) - в терминале C:
