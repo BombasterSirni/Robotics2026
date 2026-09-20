@@ -1,0 +1,20 @@
+{
+  "run_mode": "native",
+  "os": "Ubuntu 24.04 LTS",
+  "architecture": "x86_64",
+  "ros_distro": "jazzy",
+  "gazebo": {
+    "distribution": "Harmonic",
+    "version": "8.11.0"
+  },
+  "rmw_implementation": "rmw_fastrtps_cpp",
+  "ros_domain_id": 25,
+  "experiment_domains": {
+    "working": 25,
+    "broken": 23
+  },
+  "docker_image_digest": "-",
+  "network": "все ноды и CLI нативно на Ubuntu 24.04 в ros2-desktop",
+  "gui": "окно turtlesim на Linux-хосте",
+  "recorded_at_utc": "2026-09-10T04:41:01Z"
+}
