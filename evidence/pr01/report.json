@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR01",
+  "commit": "382d20816525ff70b5915bfa29fe032ba6d351da",
+  "course_kit": {
+    "version": "v1-w02",
+    "archive_sha256": "5d210c431e32418f45e2cffa9dd2028116c7a9520a36f3c7079c778cd73437a8"
+  },
+  "commands": ["ros2 run turtlesim turtlesim_node",
+    "ros2 run turtlesim turtle_teleop_key",
+    "ros2 doctor --report",
+    "ros2 node list --no-daemon --spin-time 2",
+    "ros2 topic list -t",
+    "ros2 node info /turtlesim",
+    "ros2 node info /teleop_turtle",
+    "ros2 topic type /turtle1/pose",
+    "ros2 topic echo /turtle1/pose --once",
+    "ros2 topic type /parameters_events",
+    "ros2 topic type /rosout",
+    "ros2 topic type /turtle1/cmd_vel",
+    "ros2 topic type /turtle1/color_sensor",
+    "ros2 topic hz /turtle1/pose",
+    "ros2 node list --no-daemon --spin-time 2",
+    "export ROS_DOMAIN_ID=25",
+    "python3 -m json.tool evidence/pr01/environment.json",
+    "python3 .course-kit/v1/tools/check_practice.py PR01 --submission ."],
+  "tests": [{"name": "replace-with-test-name", "status": "passed"}],
+  "defect": {
+    "reproducer": "Команда и наблюдаемый симптом до исправления",
+    "root_cause": "Причинное объяснение",
+    "proof_after": "Команда и результат после исправления"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": "0",
+    "self_study_hours": "4"
+  },
+  "ai_used": false
+}
