@@ -1,6 +1,5 @@
 name: PR01 — проверка отчёта
 
-
 on: [push, pull_request]
 
 jobs:
@@ -16,13 +15,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Скачать зафиксированный комплект курса
+      - name: Скачать и подготовить комплект курса во временной папке
         shell: bash
         run: |
-          curl -fsSLo course-kit.tar.gz "$COURSE_KIT_URL"
-          printf '%s  %s\n' "$COURSE_KIT_SHA256" course-kit.tar.gz | sha256sum -c -
-          mkdir -p .course-kit
-          tar -xzf course-kit.tar.gz -C .course-kit
+          # Создаем временную директорию ВНЕ git workspace или используем /tmp
+          export KIT_DIR=$(mktemp -d)
+          
+          curl -fsSLo "$KIT_DIR/course-kit.tar.gz" "$COURSE_KIT_URL"
+          printf '%s  %s\n' "$COURSE_KIT_SHA256" "$KIT_DIR/course-kit.tar.gz" | sha256sum -c -
+          
+          mkdir -p "$KIT_DIR/.course-kit"
+          tar -xzf "$KIT_DIR/course-kit.tar.gz" -C "$KIT_DIR/.course-kit"
+          
+          # Сохраняем путь для следующего шага
+          echo "KIT_PATH=$KIT_DIR/.course-kit" >> $GITHUB_ENV
 
       - name: Проверить JSON и совпадение версии архива
         shell: bash
@@ -40,4 +46,6 @@ jobs:
 
       - name: Проверить комплектность evidence и коммит реализации
         shell: bash
-        run: python3 .course-kit/v1/tools/check_practice.py PR01 --submission .
+        
+        run: |
+          python3 "$KIT_PATH/v1/tools/check_practice.py" PR01 --submission .
