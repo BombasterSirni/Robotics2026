@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "practice_id": "PR01",
-  "commit": "555a7bdc41f0748091af1d50fa1370761b1fc658",
+  "commit": "ea7bfb08105699ed6f64561e61e11942c5649d72",
   "course_kit": {
     "version": "v1-w02",
     "archive_sha256": "5d210c431e32418f45e2cffa9dd2028116c7a9520a36f3c7079c778cd73437a8"
@@ -36,8 +36,8 @@
     "defect_fixed": true
   },
   "time": {
-    "contact_academic_hours": "0",
-    "self_study_hours": "4"
+    "contact_academic_hours": 0,
+    "self_study_hours": 4
   },
   "ai_used": false
 }
