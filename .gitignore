@@ -1,0 +1,6 @@
+build/
+install/
+log/
+.course-kit/
+.vscode/
+__pycache__/
