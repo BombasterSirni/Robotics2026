@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR02",
+  "commit": "ee6e837b415bc06d289993b9d10307c6f7239b2b",
+  "course_kit": {
+    "version": "v1-w03",
+    "archive_sha256": "7fbfd3e8161ab6c6ebefc7663efdaf77d9a7d490399743507f33dcefbd5ac522"
+  },
+  "commands": [
+    "pwd",
+    "printenv ROS_DISTRO ROS_DOMAIN_ID",
+    "colcon build --symlink-install --packages-select turtle_bringup",
+    "ros2 launch turtle_bringup sim.launch.py",
+    "ros2 node list --no-daemon --spin-time 2",
+    "ros2 interface show geometry_msgs/msg/Twist",
+    "ros2 topic type /turtle1/pose",
+    "ros2 topic echo /turtle1/pose --once",
+    "ros2 topic pub --once /turtle1/cmd_vel geometry_msgs/msg/Twist '{linear: {x: 1.0}, angular: {z: 0.5}}'",
+    "ros2 topic pub --rate 1 --wait-matching-subscriptions 0 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 1.0}, angular: {z: 0.5}}'",
+    "ros2 topic info /turtle1/cmd_vel --verbose",
+    "python3 .course-kit/v1/tools/check_practice.py PR02 --submission ."
+  ],
+  "tests": [
+    {
+      "name": "Пакет turtle_bringup успешно собран (Finished <<< turtle_bringup)",
+      "status": "passed",
+      "evidence": "build-empty.txt"
+    },
+    {
+      "name": "Нода /turtlesim активна в домене 25 после запуска launch-файла",
+      "status": "passed",
+      "evidence": "node-list-active.txt"
+    },
+    {
+      "name": "Тип топика /turtle1/pose определен как turtlesim/msg/Pose",
+      "status": "passed",
+      "evidence": "topic-type-pose.txt"
+    },
+    {
+      "name": "Сообщение Pose получено через ros2 topic echo (--once)",
+      "status": "passed",
+      "evidence": "echo-pose-once.txt"
+    },
+    {
+      "name": "Структура сообщения geometry_msgs/msg/Twist изучена (linear/angular Vector3)",
+      "status": "passed",
+      "evidence": "interface-twist.txt"
+    },
+    {
+      "name": "Единичная публикация в правильный топик /turtle1/cmd_vel выполнена успешно",
+      "status": "passed",
+      "evidence": "pub-correct-once.txt"
+    },
+    {
+      "name": "Непрерывная публикация в неправильный топик /cmd_vel не влияет на движение черепахи",
+      "status": "passed",
+      "evidence": "pub-wrong-loop.txt, turtlesim-static.png"
+    },
+    {
+      "name": "В verbose режиме топика /turtle1/cmd_vel виден Publisher count: 0 при ошибке в имени топика",
+      "status": "passed",
+      "evidence": "info-turtle-cmdvel-broken.txt"
+    }
+  ],
+  "defect": {
+    "reproducer": "Запущена симуляция turtlesim. В отдельном терминале выполнен непрерывный publish команды управления: `ros2 topic pub --rate 1 --wait-matching-subscriptions 0 /cmd_vel geometry_msgs/msg/Twist '{linear: {x: 1.0}, angular: {z: 0.5}}'`. При этом проверено состояние топика `/turtle1/cmd_vel` командой `ros2 topic info /turtle1/cmd_vel --verbose`, где Subscription count равен 1 (turtlesim), но Publisher count равен 0. Черепаха не двигается.",
+    "root_cause": "Ошибка в имени топика. Нода turtlesim подписана на топик `/turtle1/cmd_vel`, тогда как publisher отправляет данные в глобальный топик `/cmd_vel`. Из-за несовпадения имен каналов связь между издателем и получателем отсутствует, и черепаха не получает сигналов управления.",
+    "proof_after": "Команда скорректирована на корректное имя топика: `ros2 topic pub --rate 1 /turtle1/cmd_vel geometry_msgs/msg/Twist ...`. После этого в выводе `ros2 topic info /turtle1/cmd_vel --verbose` значение Publisher count стало равным 1, а черепаха начала двигаться по кругу согласно заданным параметрам линейной и угловой скорости."
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 3
+  },
+  "ai_used": true
+}

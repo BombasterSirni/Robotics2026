@@ -1,0 +1,5 @@
+[0.211s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/covo43k/study/Robotics2026/install/turtle_bringup' in the environment variable AMENT_PREFIX_PATH doesn't exist
+Starting >>> turtle_bringup
+Finished <<< turtle_bringup [1.51s]
+
+Summary: 1 package finished [1.67s]
