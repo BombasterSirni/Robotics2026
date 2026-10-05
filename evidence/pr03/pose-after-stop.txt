@@ -1,0 +1,37 @@
+Прогон 2026-10-05, Ubuntu 24.04 (Mint 22.3), ROS 2 Jazzy, ROS_DOMAIN_ID=25.
+Нода запущена с remap: patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel.
+Опорная поза движущейся черепашки перед остановкой — pose-fixed-t3.txt.
+Остановка выполнена SIGINT (эквивалент Ctrl+C), процесс завершился с кодом 0
+(patrol-fixed-log.txt). Далее выборки /turtle1/pose; между выборками ~0.5-1 с
+(запуск ros2 topic echo), поэтому t — нижняя оценка времени после SIGINT.
+
+--- t+0.0s после SIGINT ---
+x: 7.204895973205566
+y: 7.125176906585693
+theta: 1.5168147087097168
+linear_velocity: 0.0
+angular_velocity: 0.0
+--- t+0.5s после SIGINT ---
+x: 7.204895973205566
+y: 7.125176906585693
+theta: 1.5168147087097168
+linear_velocity: 0.0
+angular_velocity: 0.0
+--- t+1.0s после SIGINT ---
+x: 7.204895973205566
+y: 7.125176906585693
+theta: 1.5168147087097168
+linear_velocity: 0.0
+angular_velocity: 0.0
+--- t+2.0s после SIGINT ---
+x: 7.204895973205566
+y: 7.125176906585693
+theta: 1.5168147087097168
+linear_velocity: 0.0
+angular_velocity: 0.0
+--- t+4.0s после SIGINT ---
+x: 7.204895973205566
+y: 7.125176906585693
+theta: 1.5168147087097168
+linear_velocity: 0.0
+angular_velocity: 0.0

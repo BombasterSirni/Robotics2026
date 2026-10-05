@@ -1,0 +1,22 @@
+{
+  "run_mode": "native",
+  "os": "Linux Mint 22.3 (Ubuntu 24.04 noble)",
+  "architecture": "x86_64",
+  "kernel": "7.0.0-31-generic",
+  "ros_distro": "jazzy",
+  "ros_core_version": "0.11.0-1noble.20260615.174419",
+  "turtlesim_version": "1.8.4-1noble.20260615.145700",
+  "python": "3.12.3",
+  "rmw_implementation": "rmw_fastrtps_cpp (по умолчанию, RMW_IMPLEMENTATION не задан)",
+  "ros_domain_id": 25,
+  "graphics": "AMD Radeon Graphics (radeonsi/renoir), Mesa 25.2.8, OpenGL 4.6, X-дисплей :0",
+  "gazebo": "не используется в ПР03",
+  "docker_image_digest": "-",
+  "network": "все ноды и CLI нативно на Linux Mint 22.3, turtlesim и patrol в одном домене 25",
+  "gui": "окно turtlesim на X-дисплее :0",
+  "course_kit": {
+    "version": "v1-w04",
+    "archive_sha256": "fec6b4e886c19146078bf69fbf90a19279a4cd33f656642395350b299efeb226"
+  },
+  "recorded_at_utc": "2026-10-05T06:41:17Z"
+}

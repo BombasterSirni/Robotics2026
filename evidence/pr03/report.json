@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR03",
+  "commit": "d968188accd696e20df7c042583e7dcef89cd12b",
+  "course_kit": {
+    "version": "v1-w04",
+    "archive_sha256": "fec6b4e886c19146078bf69fbf90a19279a4cd33f656642395350b299efeb226"
+  },
+  "commands": [
+    "colcon build --symlink-install --packages-select patrol",
+    "source install/setup.bash",
+    "/usr/bin/python3 -m pytest src/patrol/test",
+    "colcon test --packages-select patrol --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "ros2 run turtlesim turtlesim_node",
+    "ros2 run patrol patrol",
+    "ros2 topic info /cmd_vel -v",
+    "ros2 topic info /turtle1/cmd_vel -v",
+    "ros2 topic echo /cmd_vel --once",
+    "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel",
+    "ros2 topic echo /turtle1/cmd_vel --once",
+    "ros2 topic hz /turtle1/cmd_vel"
+  ],
+  "tests": [
+    {"name": "pytest src/patrol/test", "status": "passed"},
+    {"name": "colcon test --packages-select patrol", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "ros2 run patrol patrol без remap при работающем turtlesim: у /cmd_vel Publisher count 1 (patrol) и Subscription count 0, у /turtle1/cmd_vel Publisher count 0 при Subscription count 1 (turtlesim); /turtle1/pose не меняется за 3 с (x=5.544444561004639, y=5.544444561004639, theta=0.0). Черепашка неподвижна. Логи: evidence/pr03/cmdvel-info-broken.txt, turtle1-cmdvel-info-broken.txt, pose-broken-t0.txt, pose-broken-t3.txt",
+    "root_cause": "Имя издателя задано относительным ('cmd_vel'), поэтому узел публикует в /cmd_vel, а turtlesim подписан на /turtle1/cmd_vel; имена не совпадают, доставки нет. Команда при этом корректно вычисляется: ros2 topic echo /cmd_vel --once показывает x=0.5, z=0.3 (evidence/pr03/echo-cmdvel-broken.txt)",
+    "proof_after": "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel: /cmd_vel из графа исчезает, у /turtle1/cmd_vel Publisher count 1 (patrol) и Subscription count 1 (turtlesim); поза меняется с (6.669164, 8.437393, 2.395200) на (7.064710, 6.537017, 1.152015) при linear_velocity 0.5, angular_velocity 0.3, а ros2 topic hz /turtle1/cmd_vel за ~10 с даёт average rate 10.000 Гц (min 0.099s, max 0.101s). Логи: evidence/pr03/turtle1-cmdvel-info-fixed.txt, pose-fixed-t0.txt, pose-fixed-t3.txt, cmdvel-hz-10s.txt"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}
