@@ -1,0 +1,52 @@
+name: ROS checks
+
+on: [push, pull_request]
+
+
+env:
+  COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w04-fec6b4e886c1.tar.gz
+  COURSE_KIT_SHA256: fec6b4e886c19146078bf69fbf90a19279a4cd33f656642395350b299efeb226
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # fetch-depth: 0 обязателен: check_practice.py сверяет report.commit с HEAD по истории.
+      - name: Получить репозиторий
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up ROS 2 Jazzy
+        uses: ros-tooling/setup-ros@v0.7
+        with:
+          required-ros-distributions: jazzy
+
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-colcon-common-extensions python3-pytest curl
+          # turtlesim — тип Pose для patrol; ament-lint-common — тесты стиля пакета.
+          sudo apt-get install -y ros-jazzy-turtlesim ros-jazzy-ament-lint-common
+
+      - name: Download course kit
+        shell: bash
+        run: |
+          curl -fsSLo course-kit.tar.gz "$COURSE_KIT_URL"
+          printf '%s  %s\n' "$COURSE_KIT_SHA256" course-kit.tar.gz | sha256sum -c -
+          mkdir -p .course-kit
+          tar -xzf course-kit.tar.gz -C .course-kit
+
+      - name: Build and test
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --symlink-install
+          colcon test --event-handlers console_direct+
+          colcon test-result --verbose
+
+      - name: Check PR03 evidence
+        shell: bash
+        run: python3 .course-kit/v1/tools/check_practice.py PR03 --submission .
