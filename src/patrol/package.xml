@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>patrol</name>
+  <version>0.0.0</version>
+  <description>Нода patrol: поза turtlesim и команда Twist</description>
+  <maintainer email="covo4ek42@gmail.com">covo43k</maintainer>
+  <license>Apache-2.0</license>
+
+  <depend>rclpy</depend>
+  <depend>geometry_msgs</depend>
+  <!-- Тип Pose: turtlesim/msg/Pose в Jazzy или turtlesim_msgs/msg/Pose в Lyrical. -->
+  <depend>turtlesim</depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
