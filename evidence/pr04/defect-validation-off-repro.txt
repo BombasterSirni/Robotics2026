@@ -1,0 +1,13 @@
+$ ros2 param set /patrol publish_hz 5.0
+Set parameter successful
+exit=0
+
+$ ros2 param set /patrol publish_hz 0.0
+exit=124
+
+$ ros2 node list
+
+$ ros2 param get /patrol publish_hz
+Node not found
+
+patrol processes: 0

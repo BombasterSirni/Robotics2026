@@ -1,0 +1,5 @@
+Starting >>> patrol
+[0.162s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/covo43k/study/.ros-local/opt/ros/jazzy' in the environment variable AMENT_PREFIX_PATH doesn't contain any 'local_setup.*' files.
+Finished <<< patrol [1.54s]
+
+Summary: 1 package finished [1.62s]

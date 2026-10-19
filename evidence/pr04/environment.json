@@ -1,0 +1,22 @@
+{
+  "run_mode": "native",
+  "os": "Linux Mint 22.3 (Ubuntu 24.04 noble)",
+  "architecture": "x86_64",
+  "kernel": "7.0.0-31-generic",
+  "ros_distro": "jazzy",
+  "ros_core_version": "0.11.0-1noble.20260615.174419",
+  "turtlesim_version": "1.8.4-1noble.20260912.162948",
+  "turtlesim_install": "системный пакет отсутствует; для прогона распакован из .deb в /home/covo43k/study/.ros-local, CI ставит ros-jazzy-turtlesim через apt",
+  "python": "3.12.3",
+  "rmw_implementation": "rmw_fastrtps_cpp (по умолчанию, RMW_IMPLEMENTATION не задан)",
+  "ros_domain_id": 25,
+  "graphics": "AMD Radeon Graphics (radeonsi/renoir), Mesa 25.2.8, OpenGL 4.6, X-дисплей :0",
+  "gazebo": "не используется в ПР04",
+  "docker_image_digest": "-",
+  "network": "все ноды и CLI нативно на Linux Mint 22.3, turtlesim и patrol в одном домене 25",
+  "course_kit": {
+    "version": "v1-w07",
+    "archive_sha256": "001f7ec79674d09a0f7eff2ad0935f58c95101b0cf200425c368f41579d6a31c"
+  },
+  "recorded_at_utc": "2026-10-19T08:01:36Z"
+}

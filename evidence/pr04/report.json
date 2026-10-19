@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR04",
+  "commit": "770ffaa10c254bdf62347bb7b51e780f9dcc8665",
+  "course_kit": {
+    "version": "v1-w07",
+    "archive_sha256": "001f7ec79674d09a0f7eff2ad0935f58c95101b0cf200425c368f41579d6a31c"
+  },
+  "commands": [
+    "colcon build --symlink-install --packages-select patrol",
+    "source install/setup.bash",
+    "/usr/bin/python3 -m pytest src/patrol/test",
+    "colcon test --packages-select patrol --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "ros2 run turtlesim turtlesim_node",
+    "ros2 run patrol patrol --ros-args -r cmd_vel:=/turtle1/cmd_vel",
+    "ros2 param list /patrol",
+    "ros2 param get /patrol linear_speed",
+    "ros2 param get /patrol turn_rate",
+    "ros2 param get /patrol publish_hz",
+    "ros2 topic hz /turtle1/cmd_vel",
+    "ros2 param set /patrol publish_hz 5.0",
+    "ros2 param set /patrol linear_speed 0.8",
+    "ros2 topic echo /turtle1/cmd_vel --once",
+    "ros2 param set /patrol publish_hz 0.0",
+    "ros2 param set /patrol publish_hz -1.0",
+    "ros2 param set /patrol publish_hz 31.0",
+    "ros2 param set /patrol publish_hz .nan",
+    "ros2 service call /clear std_srvs/srv/Empty",
+    "ros2 action list -t",
+    "ros2 action info /turtle1/rotate_absolute",
+    "ros2 interface show turtlesim/action/RotateAbsolute"
+  ],
+  "tests": [
+    {"name": "pytest src/patrol/test", "status": "passed"},
+    {"name": "colcon test --packages-select patrol", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "В ветке pr04-defect (коммит ebf499b6eb83346f2a999b2c2e216913fabe395a) проверка параметров отключена: ros2 param set /patrol publish_hz 5.0 проходит, а ros2 param set /patrol publish_hz 0.0 не получает ответа (CLI завершается с exit=124) и нода падает с ZeroDivisionError: float division by zero в timer_period (1.0 / hz); после этого ros2 node list пуст, ros2 param get сообщает Node not found, процессов patrol нет. Логи: evidence/pr04/defect-validation-off-repro.txt, defect-node-log.txt",
+    "root_cause": "Без проверки значение 0.0 доходит до пересоздания таймера: период 1/publish_hz вычисляется делением на ноль в add_post_set_parameters_callback, исключение выходит из rclpy.spin и завершает процесс. Проверка в add_on_set_parameters_callback до применения значения не даёт нулю дойти до таймера.",
+    "proof_after": "На ветке pr04 та же команда отклоняется: Setting parameter failed: publish_hz must be in [1.0, 30.0], got 0.0; publish_hz остаётся 5.0, поток 5.000 Гц (min/max 0.200 с), нода жива. Так же отклонены -1.0, 31.0 и .nan (must be a finite number). Логи: evidence/pr04/defect-fixed-repro.txt, param-set-zero-rejected.txt, param-set-nan.txt, hz-after-reject.txt"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}

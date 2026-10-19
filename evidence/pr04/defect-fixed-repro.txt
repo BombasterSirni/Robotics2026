@@ -1,0 +1,17 @@
+$ ros2 param set /patrol publish_hz 5.0
+Set parameter successful
+
+$ ros2 param get /patrol publish_hz
+Double value is: 5.0
+
+$ ros2 param set /patrol publish_hz 0.0
+Setting parameter failed: publish_hz must be in [1.0, 30.0], got 0.0
+
+$ ros2 param get /patrol publish_hz
+Double value is: 5.0
+
+$ ros2 topic hz /turtle1/cmd_vel (5 s)
+average rate: 5.000
+	min: 0.200s max: 0.200s std dev: 0.00017s window: 24
+
+patrol processes: 1

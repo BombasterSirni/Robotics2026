@@ -1,0 +1,11 @@
+$ ros2 param set /patrol publish_hz nan
+Setting parameter failed: Wrong parameter type, expected 'Type.DOUBLE' got 'Type.STRING'
+
+$ ros2 param set /patrol publish_hz .nan
+Setting parameter failed: publish_hz must be a finite number, got nan
+
+$ ros2 param set /patrol publish_hz NaN
+Setting parameter failed: Wrong parameter type, expected 'Type.DOUBLE' got 'Type.STRING'
+
+$ ros2 param get /patrol publish_hz
+Double value is: 10.0

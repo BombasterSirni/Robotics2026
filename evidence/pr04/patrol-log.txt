@@ -1,0 +1,5 @@
+[INFO] [1792396709.429561722] [patrol]: publish period 0.100 s (10 Hz)
+[INFO] [1792396724.749098407] [patrol]: publish period 0.200 s (5 Hz)
+[WARN] [1792396737.233304059] [patrol]: rejected publish_hz: publish_hz must be in [1.0, 30.0], got 0.0
+[WARN] [1792396745.490283312] [patrol]: rejected publish_hz: publish_hz must be in [1.0, 30.0], got -1.0
+[WARN] [1792396747.641393124] [patrol]: rejected publish_hz: publish_hz must be in [1.0, 30.0], got 31.0
