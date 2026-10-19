@@ -70,11 +70,9 @@ class Patrol(Node):
         for name, (default, _, _) in PARAMETER_SPECS.items():
             self.declare_parameter(name, default)
 
-        # Подписка хранится полем: иначе её уничтожит сборщик мусора.
         self._pose_sub = self.create_subscription(
             Pose, '/turtle1/pose', self._on_pose, 10)
-        # Относительное имя: с /turtle1/cmd_vel его связывает только remap.
-        self._cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        self._cmd_pub = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
         self._timer = None
         self._start_timer()
 
