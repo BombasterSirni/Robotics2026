@@ -1,0 +1,59 @@
+# ПР05, после исправления QoS и запись MCAP
+# launch: namespace:=robot_a subscriber_reliability:=best_effort record:=true bag_dir=evidence/pr05/bag
+
+$ ros2 topic info /robot_a/sensor_pose (сокращённо)
+Publisher count: 1
+Node name: pose_relay
+Node namespace: /robot_a
+  Reliability: BEST_EFFORT
+Subscription count: 2
+Node name: sensor_listener
+Node namespace: /robot_a
+  Reliability: BEST_EFFORT
+Node name: rosbag2_recorder
+Node namespace: /
+  Reliability: BEST_EFFORT
+
+$ timeout 5s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once
+x: 4.553684234619141
+y: 8.55427074432373
+theta: -2.510385274887085
+linear_velocity: 0.5
+angular_velocity: 0.30000001192092896
+---
+
+$ лог подписчика из launch (доставка идёт)
+[sensor_listener-4] [INFO] [1793547113.469595230] [robot_a.sensor_listener]: best_effort: received 625 messages
+[sensor_listener-4] [INFO] [1793547114.470266738] [robot_a.sensor_listener]: best_effort: received 687 messages
+[sensor_listener-4] [INFO] [1793547115.469750153] [robot_a.sensor_listener]: best_effort: received 750 messages
+
+$ лог записи
+[sensor_pose_recorder-5] [INFO] [1793547103.620317993] [rosbag2_recorder]: Topics discovery started.
+[sensor_pose_recorder-5] [INFO] [1793547104.048218443] [rosbag2_recorder]: Subscribed to topic '/robot_a/sensor_pose'
+[sensor_pose_recorder-5] [INFO] [1793547104.048252688] [rosbag2_recorder]: All requested topics are subscribed. Stopping discovery...
+[sensor_pose_recorder-5] [INFO] [1793547104.048277866] [rosbag2_recorder]: Topics discovery stopped.
+
+# повтор записи: ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml
+$ timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once
+[WARN] [1793547191.716493236] [_ros2cli_47536]: New publisher discovered on topic '/robot_a/sensor_pose', offering incompatible QoS. No messages will be received from it. Last incompatible policy: RELIABILITY
+exit=124 (сообщений нет: профиль несовместим так же, как до исправления)
+
+$ timeout 5s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once
+x: 6.621253967285156
+y: 8.47982120513916
+theta: 2.4335999488830566
+linear_velocity: 0.5
+angular_velocity: 0.30000001192092896
+---
+
+Files:             bag_0.mcap
+Bag size:          58.1 KiB
+Storage id:        mcap
+ROS Distro:        jazzy
+Duration:          12.319706442s
+Start:             Nov  1 2026 22:31:44.060856315 (1793547104.060856315)
+End:               Nov  1 2026 22:31:56.380562757 (1793547116.380562757)
+Messages:          771
+Topic information: Topic: /robot_a/sensor_pose | Type: turtlesim/msg/Pose | Count: 771 | Serialization Format: cdr
+Service:           0
+Service information:

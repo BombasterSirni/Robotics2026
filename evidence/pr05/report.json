@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR05",
+  "commit": "e2cb3a1e85202d5ca9dc71ea3fc1ba394eafb479",
+  "course_kit": {
+    "version": "v1-w08",
+    "archive_sha256": "aea8efd0a51668af63f2e475b82bfa28bd76c21f20d8afea6b136d43a56a88fb"
+  },
+  "commands": [
+    "colcon build --symlink-install",
+    "source install/setup.bash",
+    "/usr/bin/python3 -m pytest src/patrol/test",
+    "colcon test --event-handlers console_direct+",
+    "colcon test-result --verbose",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=reliable record:=false",
+    "ros2 topic list",
+    "ros2 topic info -v /robot_a/sensor_pose",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once",
+    "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=best_effort record:=true bag_dir:=evidence/pr05/bag",
+    "timeout 5s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once",
+    "ros2 bag play evidence/pr05/bag --qos-profile-overrides-path config/qos-overrides.yaml",
+    "timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once",
+    "timeout 5s ros2 topic echo /robot_a/sensor_pose --qos-reliability best_effort --once",
+    "ros2 bag info evidence/pr05/bag",
+    "cp evidence/pr05/bag/metadata.yaml evidence/pr05/bag-metadata.yaml"
+  ],
+  "tests": [
+    {
+      "name": "pytest src/patrol/test",
+      "status": "passed"
+    },
+    {
+      "name": "colcon test",
+      "status": "passed"
+    }
+  ],
+  "defect": {
+    "reproducer": "ros2 launch course_bringup patrol.launch.py namespace:=robot_a subscriber_reliability:=reliable record:=false: /robot_a/sensor_pose виден в ros2 topic list, у топика Publisher BEST_EFFORT (pose_relay) и Subscription RELIABLE (sensor_listener); timeout 3s ros2 topic echo /robot_a/sensor_pose --qos-reliability reliable --once печатает WARN 'incompatible QoS ... RELIABILITY' и завершается с exit=124 без сообщений, sensor_listener пишет received 0 messages, тогда как pose_relay публикует 123 -> 498 сообщений. Лог: evidence/pr05/qos-before.txt",
+    "root_cause": "Несовместимые профили надёжности: издатель предлагает BEST_EFFORT, подписчик запрашивает RELIABLE. По правилам QoS ROS 2 reliable-подписчик не может обслуживаться best effort-издателем, поэтому доставки нет, хотя топик и оба конца видны в графе. Обе стороны сообщают в лог incompatible QoS с последней несовместимой политикой RELIABILITY.",
+    "proof_after": "С тем же launch и subscriber_reliability:=best_effort профили совпадают (издатель, подписчик и rosbag2_recorder — BEST_EFFORT): ros2 topic echo --qos-reliability best_effort --once получает Pose, sensor_listener показывает received 625 -> 750. Запись MCAP содержит один поток (/robot_a/sensor_pose, 771 сообщение, 12.32 с, mcap). Повтор той же записи с config/qos-overrides.yaml даёт те же результаты: reliable-echo получает WARN incompatible QoS и exit=124, best_effort-echo получает Pose. Логи: evidence/pr05/qos-after.txt, evidence/pr05/bag-metadata.yaml"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true,
+    "replay_verified": true
+  },
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}

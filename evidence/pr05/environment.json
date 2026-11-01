@@ -1,0 +1,22 @@
+{
+  "run_mode": "native",
+  "os": "Linux Mint 22.3 (Ubuntu 24.04 noble)",
+  "architecture": "x86_64",
+  "kernel": "7.0.0-31-generic",
+  "ros_distro": "jazzy",
+  "ros_core_version": "0.11.0-1noble.20260615.174419",
+  "turtlesim_version": "1.8.4-1noble.20260912.162948",
+  "ros2bag_version": "0.26.11-1noble.20261006.034406",
+  "rosbag2_py_version": "0.26.11-1noble.20260616.083139",
+  "local_packages": "системные ros-jazzy-turtlesim и ros-jazzy-ros2bag отсутствуют; для прогона распакованы из .deb в /home/covo43k/study/.ros-local, CI ставит их через apt",
+  "python": "3.12.3",
+  "rmw_implementation": "rmw_fastrtps_cpp (по умолчанию, RMW_IMPLEMENTATION не задан)",
+  "ros_domain_id": 26,
+  "domain_note": "прогон ПР05 выполнен в домене 26, чтобы не пересекаться с параллельной сессией в домене 25",
+  "graphics": "AMD Radeon Graphics (radeonsi/renoir), Mesa 25.2.8, OpenGL 4.6, X-дисплей :0",
+  "course_kit": {
+    "version": "v1-w08",
+    "archive_sha256": "aea8efd0a51668af63f2e475b82bfa28bd76c21f20d8afea6b136d43a56a88fb"
+  },
+  "recorded_at_utc": "2026-11-01T15:33:39Z"
+}
