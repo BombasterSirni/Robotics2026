@@ -1,0 +1,70 @@
+name: ROS checks
+
+on: [push, pull_request]
+
+env:
+  COURSE_KIT_URL: https://ros.lms.ci.nsu.ru/downloads/robotics-course-kit-v1-w08-aea8efd0a516.tar.gz
+  COURSE_KIT_SHA256: aea8efd0a51668af63f2e475b82bfa28bd76c21f20d8afea6b136d43a56a88fb
+
+jobs:
+  test:
+    # Jazzy собирается под Ubuntu 24.04 (noble). ubuntu-latest может указывать на
+    # более новый образ, где пакетов ros-jazzy-* в apt нет, поэтому образ закреплён.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      # fetch-depth: 0 обязателен: check_practice.py сверяет report.commit с HEAD по истории.
+      - name: Получить репозиторий
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Вместо ros-tooling/setup-ros: ставим только нужные пакеты из штатного
+      # репозитория ROS 2, без метапакета ros-jazzy-desktop.
+      - name: Install ROS 2 Jazzy
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg lsb-release ca-certificates
+          sudo curl -fsSL -o /usr/share/keyrings/ros-archive-keyring.gpg \
+            https://raw.githubusercontent.com/ros/rosdistro/master/ros.key
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo ${UBUNTU_CODENAME:-${VERSION_CODENAME}}) main" \
+            | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            python3-colcon-common-extensions python3-pytest \
+            ros-jazzy-ros-base ros-jazzy-launch-ros ros-jazzy-ros2launch \
+            ros-jazzy-turtlesim ros-jazzy-ament-lint-common \
+            ros-jazzy-ros2bag ros-jazzy-rosbag2-storage-mcap
+
+      - name: Download course kit
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive=course-kit.tar.gz
+          if curl -fsSL --connect-timeout 10 --max-time 60 \
+              -o "$archive" "$COURSE_KIT_URL"; then
+            echo "kit: скачан с ros.lms.ci.nsu.ru"
+          else
+            # Раннер GitHub не всегда резолвит ros.lms.ci.nsu.ru (curl: (6)
+            # Could not resolve host). Тогда берём байт-в-байт копию архива из
+            # репозитория; sha256 ниже проверяется для любого источника, поэтому
+            # используется ровно зафиксированная ревизия кита.
+            echo "kit: ros.lms.ci.nsu.ru недоступен, использую архив из репозитория"
+            cp ci/course-kit/robotics-course-kit-v1-w08-aea8efd0a516.tar.gz "$archive"
+          fi
+          printf '%s  %s\n' "$COURSE_KIT_SHA256" "$archive" | sha256sum -c -
+          mkdir -p .course-kit
+          tar -xzf "$archive" -C .course-kit
+
+      - name: Build and test
+        shell: bash
+        run: |
+          source /opt/ros/jazzy/setup.bash
+          colcon build --symlink-install
+          colcon test --event-handlers console_direct+
+          colcon test-result --verbose
+
+      - name: Check PR05 evidence
+        shell: bash
+        run: python3 .course-kit/v1/tools/check_practice.py PR05 --submission .
