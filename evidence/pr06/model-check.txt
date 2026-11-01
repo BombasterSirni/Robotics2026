@@ -1,0 +1,63 @@
+$ xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf
+exit=0
+
+$ check_urdf /tmp/vehicle.urdf
+robot name is: course_ackermann
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 7 child(ren)
+    child(1):  camera_link
+    child(2):  front_left_wheel
+    child(3):  front_right_wheel
+    child(4):  imu_link
+    child(5):  lidar_link
+    child(6):  rear_left_wheel
+    child(7):  rear_right_wheel
+
+$ colcon test --packages-select course_description
+[0.198s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/covo43k/study/.ros-local/opt/ros/jazzy' in the environment variable AMENT_PREFIX_PATH doesn't contain any 'local_setup.*' files.
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-7.4.4, pluggy-1.4.0
+cachedir: /home/covo43k/study/Robotics2026/build/course_description/.pytest_cache
+rootdir: /home/covo43k/study/Robotics2026/src/course_description
+plugins: ament-copyright-0.17.5, ament-flake8-0.17.5, ament-pep257-0.17.5, launch-testing-3.4.11, launch-testing-ros-0.26.12, ament-xmllint-0.17.5, ament-lint-0.17.5, cov-4.1.0, colcon-core-0.21.3
+collected 9 items
+test/test_description.py .........                                       [100%]
+- generated xml file: /home/covo43k/study/Robotics2026/build/course_description/pytest.xml -
+============================== 9 passed in 0.03s ===============================
+Finished <<< course_description [0.50s]
+Summary: 1 package finished [0.63s]
+
+$ colcon test-result --verbose
+Summary: 9 tests, 0 errors, 0 failures, 0 skipped
+
+## дефект: parent lidar_link = camera_link (ветка pr06-defect, коммит bd45b9a7735176cd4ae3073b16b74612aedac870)
+$ xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle-defect.urdf
+exit=0
+$ check_urdf /tmp/vehicle-defect.urdf
+robot name is: course_ackermann
+---------- Successfully Parsed XML ---------------
+root Link: base_link has 6 child(ren)
+    child(1):  camera_link
+        child(1):  lidar_link
+    child(2):  front_left_wheel
+    child(3):  front_right_wheel
+    child(4):  imu_link
+    child(5):  rear_left_wheel
+    child(6):  rear_right_wheel
+$ colcon test --packages-select course_description
+E     comparison failed. Mismatched elements: 2 / 3:
+FAILED test/test_description.py::test_sensor_parents - AssertionError: assert 'camera_link' == 'base_link'
+FAILED test/test_description.py::test_sensor_absolute_positions - assert (0.2300000000...0000000000001) == approx((-0.05...45 ± 4.5e-07))
+  comparison failed. Mismatched elements: 2 / 3:
+========================= 2 failed, 7 passed in 0.05s ==========================
+$ colcon test-result --verbose
+
+Summary: 9 tests, 0 errors, 2 failures, 0 skipped
+$ ros2 run tf2_ros tf2_echo base_link lidar_link
+- Translation: [0.230, 0.000, 0.830]
+
+## после возврата связи: parent lidar_link = base_link
+$ colcon test --packages-select course_description
+============================== 9 passed in 0.03s ===============================
+$ colcon test-result --verbose
+Summary: 9 tests, 0 errors, 0 failures, 0 skipped

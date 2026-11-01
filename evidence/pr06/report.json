@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "practice_id": "PR06",
+  "commit": "98796d3038f4d4a5d14d9a31c87c197e227f21d8",
+  "course_kit": {
+    "version": "v1-w08",
+    "archive_sha256": "aea8efd0a51668af63f2e475b82bfa28bd76c21f20d8afea6b136d43a56a88fb"
+  },
+  "commands": [
+    "colcon build --symlink-install",
+    "source install/setup.bash",
+    "xacro src/course_description/urdf/vehicle.urdf.xacro > /tmp/vehicle.urdf",
+    "check_urdf /tmp/vehicle.urdf",
+    "colcon test --packages-select course_description",
+    "colcon test-result --verbose",
+    "ros2 launch course_description description.launch.py",
+    "ros2 topic info /tf_static --verbose",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability transient_local --qos-reliability reliable",
+    "timeout 4 ros2 topic echo /tf_static --once --qos-durability volatile --qos-reliability reliable",
+    "ros2 run tf2_ros tf2_echo base_link lidar_link",
+    "ros2 run tf2_tools view_frames",
+    "ros2 topic pub -r 10 /joint_states sensor_msgs/msg/JointState \"{header: auto, name: [front_left_wheel_joint], position: [0.0]}\"",
+    "ros2 topic info /tf --verbose"
+  ],
+  "tests": [
+    {"name": "pytest src/course_description/test", "status": "passed"},
+    {"name": "colcon test --packages-select course_description", "status": "passed"}
+  ],
+  "defect": {
+    "reproducer": "В ветке pr06-defect у lidar_link родителем сделан camera_link при прежнем смещении в Xacro: check_urdf по-прежнему печатает Successfully Parsed XML, но тесты ожидаемого родителя и абсолютного положения падают (2 failed из 9), а ros2 run tf2_ros tf2_echo base_link lidar_link показывает Translation: [0.230, 0.000, 0.830] вместо [-0.050, 0.000, 0.450]. Лог: evidence/pr06/model-check.txt",
+    "root_cause": "Смещение лидара задано в системе координат родителя: при parent=camera_link смещение -0.05 0 0.45 складывается со смещением камеры 0.28 0 0.38, и лидар оказывается в точке (0.23, 0, 0.83). check_urdf проверяет только структуру дерева (связность и ацикличность), а не смысл родителя, поэтому неверная геометрия проходит структурную проверку.",
+    "proof_after": "После возврата родителя base_link те же тесты дают 9 passed, а tf2_echo base_link lidar_link возвращает Translation: [-0.050, 0.000, 0.450]; view_frames показывает camera_link/lidar_link/imu_link дочерними base_link, и frames.md фиксирует ожидаемые преобразования. Логи: evidence/pr06/model-check.txt, tf2-echo.txt, frames.md"
+  },
+  "claims": {
+    "public_tests_passed": true,
+    "defect_reproduced": true,
+    "defect_fixed": true
+  },
+  "time": {
+    "contact_academic_hours": 0,
+    "self_study_hours": 2
+  },
+  "ai_used": true
+}

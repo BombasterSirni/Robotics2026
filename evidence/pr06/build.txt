@@ -1,0 +1,5 @@
+Starting >>> course_description
+[0.158s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/covo43k/study/.ros-local/opt/ros/jazzy' in the environment variable AMENT_PREFIX_PATH doesn't contain any 'local_setup.*' files.
+Finished <<< course_description [1.50s]
+
+Summary: 1 package finished [1.58s]
